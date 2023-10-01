@@ -5,26 +5,18 @@ on:
       - main
   pull_request:
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.3
-
-      - name: Configure the project
-        uses: threeal/cmake-action@v1.3.0
-
-      - name: Build the project
-        run: cmake --build . --target ygo_card_tool --config Release
-
-      - name: Test the project
-        run: ctest --test-dir .
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3.5.3
+        with:
+          submodules: recursive
 
       - name: Configure the project
         uses: threeal/cmake-action@v1.3.0
