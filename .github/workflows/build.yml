@@ -22,7 +22,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
 
       - name: Build the project
-        run: cmake --build . --target ygo_card_tool --config Release
+        run: cmake --build build --target ygo_card_tool --config Release
 
       - name: Test the project
-        run: ctest --test-dir .
+        run: ctest --test-dir build
