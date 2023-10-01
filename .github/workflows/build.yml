@@ -1,6 +1,9 @@
 name: Build
 on:
   push:
+    branches:
+      - main
+  pull_request:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -12,10 +15,10 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
 
       - name: Build the project
-        runs: cmake --build . --target ygo_card_tool --config Release
+        run: cmake --build . --target ygo_card_tool --config Release
 
       - name: Test the project
-        runs: ctest --test-dir .
+        run: ctest --test-dir .
 
   build-windows:
     runs-on: windows-latest
@@ -27,7 +30,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
 
       - name: Build the project
-        runs: cmake --build . --target ygo_card_tool --config Release
+        run: cmake --build . --target ygo_card_tool --config Release
 
       - name: Test the project
-        runs: ctest --test-dir .
+        run: ctest --test-dir .
