@@ -1,59 +1,125 @@
+/**
+ * main.c - Primary function is to parse base command line and forward that to the relevant command
+ * handlers. This is an entrypoint, not an implementation. Keep it simple.
+ */
+
+#include "hd.h"
+#include "ygo_card.h"
+#include <cJSON.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <string.h>
-#include "ygo_card.h"
+#include "ygo_errno.h"
 
-void hd(const void* data, size_t size) {
-  unsigned char ascii[17];
-  size_t i, j;
-  ascii[16] = '\0';
-  for (i = 0; i < size; ++i) {
-    printf("%02X ", ((unsigned char*)data)[i]);
-    if (((unsigned char*)data)[i] >= ' ' && ((unsigned char*)data)[i] <= '~') {
-      ascii[i % 16] = ((unsigned char*)data)[i];
-    } else {
-      ascii[i % 16] = '.';
+const char *CMD_VIEW = "view";
+const char *CMD_WRITE = "write";
+const char *CMD_READ = "read";
+
+ygo_errno_t usage(const char* cmd);
+
+int main(int argc, char *argv[]) {
+    char *command = NULL;
+    if (argc > 1) command = argv[1];
+
+    if (command == NULL) return usage(command);
+
+    if (!strcmp(CMD_VIEW, command)) {
+        printf("View Card from Binary File\n");
+        return YGO_OK;
     }
-    if ((i+1) % 8 == 0 || i+1 == size) {
-      printf(" ");
-      if ((i+1) % 16 == 0) {
-        printf("|  %s \n", ascii);
-      } else if (i+1 == size) {
-        ascii[(i+1) % 16] = '\0';
-        if ((i+1) % 16 <= 8) {
-          printf(" ");
-        }
-        for (j = (i+1) % 16; j < 16; ++j) {
-          printf("   ");
-        }
-        printf("|  %s \n", ascii);
-      }
-    }
-  }
+
+    return usage(command);
 }
 
-int main() {
-  ygo_card_t card = {
-      .id = 40737112,
-      .name = "Dark Magician of Chaos",
-      .type = YGO_CARD_TYPE_EFFECT_MONSTER,
-      .frame = YGO_CARD_FRAME_EFFECT,
-      .subtype = YGO_CARD_STYPE_MONSTER_SPELLCASTER,
-      .attribute = YGO_CARD_ATTR_DARK,
-      .atk = 2800,
-      .def = 2600,
-      .rank = 8,
-      .scale = 0,
-      .link_value = 0,
-      .link_markers = 0
-  };
+//void demo(void) {
+//    cJSON *root = cJSON_CreateObject();
+//    cJSON_AddBoolToObject(root, "test", 1);
+//    printf("cJSON Link Test:\n%s\n\n", cJSON_Print(root));
+//    cJSON_Delete(root);
+//
+//    ygo_card_t card = {.id = 40737112,
+//        .name = "Dark Magician of Chaos",
+//        .type = YGO_CARD_TYPE_EFFECT_MONSTER,
+//        .frame = YGO_CARD_FRAME_EFFECT,
+//        .subtype = YGO_CARD_STYPE_MONSTER_SPELLCASTER,
+//        .attribute = YGO_CARD_ATTR_DARK,
+//        .atk = 2800,
+//        .def = 2600,
+//        .rank = 8,
+//        .scale = 0,
+//        .link_value = 0,
+//        .link_markers = 0};
+//
+//    printf("Loaded card: %s\n", card.name);
+//
+//    uint8_t raw[144] = {0};
+//    ygo_card_serialize(raw, &card);
+//
+//    printf("Serializing as raw:\n");
+//    hd(raw, sizeof(raw));
+//}
+//
+//ygo_errno_t getopts(options_t *opts, int argc, char *argv[]) {
+//    int option_index = 0;
+//    int c;
+//
+//    struct option long_options[] = {
+//        { .name = "dump", .has_arg = no_argument, .flag = NULL, .val = 'f'},
+//        { 0, 0, 0, 0 }
+//    };
+//
+//    char *optstr = "d";
+//
+//    while(1) {
+//        c = getopt_long(argc, argv, optstr, long_options, &option_index);
+//        if (c == -1) break;
+//
+//        switch (c) { // NOLINT(hicpp-multiway-paths-covered)
+//        case 'd': opts->dump = 1; break;
+//        default:
+//            return usage(argv[0]);
+//        }
+//    }
+//
+//    return YGO_OK;
+//}
 
-  printf("Loaded card: %s\n", card.name);
+#ifdef LANG_JP
+#define HELP_SPECIFY_CMD "コマンドを指定する必要があります。"
+#define HELP_UNKNOWN_CMD "不明なコマンド"
+#define HELP_USAGE "使用法: ygo <コマンド> [オプション...]"
+#define HELP_COMMANDS "コマンド"
+#define HELP_CMD_VIEW "バイナリパックからカードデータを表示する"
+#define HELP_CMD_WRITE "バイナリパックをカードタグに送信"
+#define HELP_CMD_READ "カードタグからバイナリパックを受け取る"
+#define HELP_CMD_ENCODE "JSON カードデータファイルをバイナリパックにエンコードする"
+#define HELP_CMD_DECODE "JSON カードデータファイルからバイナリパックをデコードする"
+#else
+#define HELP_SPECIFY_CMD "You must specify a command."
+#define HELP_UNKNOWN_CMD "Unknown command"
+#define HELP_USAGE "Usage: ygo <command> [options...]"
+#define HELP_COMMANDS "Commands"
+#define HELP_CMD_VIEW "View the card data encoded in a binary pack"
+#define HELP_CMD_WRITE "Write a binary pack to a card tag"
+#define HELP_CMD_READ "Read a binary pack from a card tag"
+#define HELP_CMD_ENCODE "Encode a JSON card data file to a binary pack"
+#define HELP_CMD_DECODE "Decode a binary pack into a JSON card data file"
+#endif
 
-  uint8_t raw[144] = {0};
-  ygo_card_serialize(raw, &card);
+ygo_errno_t usage(const char *cmd) {
+    if (cmd == NULL) printf(HELP_SPECIFY_CMD "\n");
+    else printf(HELP_UNKNOWN_CMD ": %s\n", cmd);
 
-  printf("Serializing as raw:\n");
-  hd(raw, sizeof(raw));
+    printf(
+        HELP_USAGE "\n"
+        "\n"
+        HELP_COMMANDS ":\n"
+        "    view     - " HELP_CMD_VIEW "\n"
+        "    write    - " HELP_CMD_WRITE "\n"
+        "    read     - " HELP_CMD_READ "\n"
+        "    encode   - " HELP_CMD_ENCODE "\n"
+        "    decode   - " HELP_CMD_DECODE "\n"
+    );
 
-  return 0;
+    return YGO_ERR_BAD_ARGS;
 }

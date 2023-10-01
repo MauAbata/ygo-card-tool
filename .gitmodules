@@ -1,3 +1,6 @@
 [submodule "lib/ygo-c"]
 	path = lib/ygo-c
 	url = https://github.com/MauAbata/ygo-c
+[submodule "lib/cJSON"]
+	path = lib/cJSON
+	url = https://github.com/DaveGamble/cJSON

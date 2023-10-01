@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 3.15)
 project(ygo_card_tool C)
 
 set(CMAKE_C_STANDARD 11)
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
+
+set(CJSON_OVERRIDE_BUILD_SHARED_LIBS ON)
+set(CJSON_BUILD_SHARED_LIBS OFF)
 
 add_subdirectory(src)
 add_subdirectory(lib/ygo-c)
+add_subdirectory(lib/cJSON)
 
-target_include_directories(ygo_card_tool PRIVATE lib/ygo-c/include)
-target_link_libraries(ygo_card_tool PRIVATE ygo-c)
+target_compile_options(cjson PRIVATE -Wno-float-conversion -fno-stack-protector)
