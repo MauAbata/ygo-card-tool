@@ -1,0 +1,3 @@
+[submodule "lib/ygo-c"]
+	path = lib/ygo-c
+	url = https://github.com/MauAbata/ygo-c

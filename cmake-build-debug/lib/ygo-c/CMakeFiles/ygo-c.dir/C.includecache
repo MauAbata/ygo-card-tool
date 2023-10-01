@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../lib/ygo-c/include/ygo_card.h
+stdint.h
+-
+
+C:/Users/eiser.000/CLionProjects/ygo-card-tool/lib/ygo-c/src/ygo_card.c
+ygo_card.h
+C:/Users/eiser.000/CLionProjects/ygo-card-tool/lib/ygo-c/src/ygo_card.h
+string.h
+C:/Users/eiser.000/CLionProjects/ygo-card-tool/lib/ygo-c/src/string.h
+

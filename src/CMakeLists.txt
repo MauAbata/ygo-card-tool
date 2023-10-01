@@ -1,0 +1,1 @@
+add_executable(ygo_card_tool main.c)
