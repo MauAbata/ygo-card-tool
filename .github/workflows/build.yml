@@ -9,6 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
@@ -17,6 +18,12 @@ jobs:
         uses: actions/checkout@v3.5.3
         with:
           submodules: recursive
+
+      - name: Install Windows Compiler
+        if: ${{ matrix.os }} == "windows-latest"
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
 
       - name: Configure the project
         uses: threeal/cmake-action@v1.3.0
