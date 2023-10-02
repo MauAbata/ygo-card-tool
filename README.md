@@ -1,0 +1,3 @@
+You might need to specify a CURL_ROOT ENV to help build on Windows...
+
+`CURL_ROOT=C:\msys64\usr\include\`

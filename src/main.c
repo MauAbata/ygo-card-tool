@@ -10,12 +10,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "ygo_errno.h"
+#include "curl/curl.h"
 
 const char *CMD_VIEW = "view";
 const char *CMD_WRITE = "write";
 const char *CMD_READ = "read";
+const char *CMD_FETCH = "fetch";
 
 ygo_errno_t usage(const char* cmd);
+
+void fetch(void);
 
 int main(int argc, char *argv[]) {
     char *command = NULL;
@@ -28,7 +32,29 @@ int main(int argc, char *argv[]) {
         return YGO_OK;
     }
 
+    if (!strcmp(CMD_FETCH, command)) {
+        fetch();
+        return YGO_OK;
+    }
+
     return usage(command);
+}
+
+void fetch(void) {
+    CURL *curl;
+    CURLcode res;
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "https://example.com");
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
+        printf("HTTP res=%d\n", res);
+        curl_easy_cleanup(curl);
+    }
 }
 
 //void demo(void) {

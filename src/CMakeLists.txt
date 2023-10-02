@@ -14,3 +14,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ygo-c)
 # Link cJSON
 target_include_directories(${PROJECT_NAME} PRIVATE ../lib/cJSON)
 target_link_libraries(${PROJECT_NAME} PRIVATE cjson)
+
+# Link cURL
+target_include_directories(${PROJECT_NAME} PRIVATE ../lib/curl/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE libcurl_object)
