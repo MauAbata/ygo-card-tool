@@ -35,3 +35,9 @@ jobs:
 
       - name: Test the project
         run: ctest --test-dir build
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.os }}
+          path: bin
