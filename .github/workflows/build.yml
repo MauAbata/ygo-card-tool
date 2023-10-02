@@ -27,6 +27,8 @@ jobs:
 
       - name: Configure the project
         uses: threeal/cmake-action@v1.3.0
+        with:
+          generator: ${{ matrix.os == 'windows-latest' && "CodeBlocks - MinGW Makefiles" || "" }}
 
       - name: Build the project
         run: cmake --build build --target ygo_card_tool --config Release
