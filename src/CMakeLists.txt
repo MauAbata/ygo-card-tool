@@ -17,4 +17,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE cjson)
 
 # Link cURL
 target_include_directories(${PROJECT_NAME} PRIVATE ../lib/curl/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE libcurl_object)
+
+#if(WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE libcurl_static)
+#else()
+#    target_link_libraries(${PROJECT_NAME} PRIVATE libcurl)
+#endif()
