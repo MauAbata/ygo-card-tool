@@ -20,7 +20,7 @@ jobs:
           submodules: recursive
 
       - name: Install Windows Compiler
-        if: ${{ matrix.os }} == "windows-latest"
+        if: matrix.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
         with:
           msystem: CLANG64
