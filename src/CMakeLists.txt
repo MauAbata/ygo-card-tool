@@ -1,6 +1,6 @@
 # Define Main Sources
 add_executable(${PROJECT_NAME} main.c)
-target_sources(${PROJECT_NAME} PRIVATE hd.c)
+target_sources(${PROJECT_NAME} PRIVATE hd.c ygo_nfc.c)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DLANG_JP)
 

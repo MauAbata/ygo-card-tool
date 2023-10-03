@@ -11,8 +11,7 @@
 #include <string.h>
 #include "ygo_errno.h"
 #include "curl/curl.h"
-#include "nfc/nfc.h"
-#include "mifare.h"
+#include "ygo_nfc.h"
 
 const char *CMD_VIEW = "view";
 const char *CMD_WRITE = "write";
@@ -23,132 +22,32 @@ ygo_errno_t usage(const char* cmd);
 
 void fetch(void);
 
-#define MAX_DEVICE_COUNT 16
+ygo_errno_t nfc_read(void) {
+    ygo_errno_t err = YGO_OK;
+    ygo_nfc_ctx_t ctx;
 
-static nfc_device *pnd = NULL;
-static nfc_context *context;
-
-#define ERR(str...) fprintf(stderr, str);
-
-static void stop_polling(int sig)
-{
-    (void) sig;
-    if (pnd != NULL)
-        nfc_abort_command(pnd);
-    else {
-        nfc_exit(context);
-    }
-}
-
-void
-print_nfc_target(const nfc_target *pnt, bool verbose)
-{
-    char *s;
-    str_nfc_target(&s, pnt, verbose);
-    printf("%s", s);
-    nfc_free(s);
-}
-
-void nfc_poll(void) {
-    const uint8_t uiPollNr = 20;
-    const uint8_t uiPeriod = 2;
-    const nfc_modulation nmModulations[6] = {
-        { .nmt = NMT_ISO14443A, .nbr = NBR_106 },
-        { .nmt = NMT_ISO14443B, .nbr = NBR_106 },
-        { .nmt = NMT_FELICA, .nbr = NBR_212 },
-        { .nmt = NMT_FELICA, .nbr = NBR_424 },
-        { .nmt = NMT_JEWEL, .nbr = NBR_106 },
-        { .nmt = NMT_ISO14443BICLASS, .nbr = NBR_106 },
+    ygo_card_t card = {
+        .id = 40737112,
+        .name = "Dark Magician of Chaos",
+        .type = YGO_CARD_TYPE_EFFECT_MONSTER,
+        .frame = YGO_CARD_FRAME_EFFECT,
+        .subtype = YGO_CARD_STYPE_MONSTER_SPELLCASTER,
+        .attribute = YGO_CARD_ATTR_DARK,
+        .atk = 2800,
+        .def = 2600,
+        .rank = 8,
+        .scale = 0,
+        .link_value = 0,
+        .link_markers = 0,
     };
-    const size_t szModulations = 6;
 
-    nfc_target nt;
-    int res = 0;
+    ERR_CHK_GOTO(ygo_nfc_init(&ctx));
+    ERR_CHK_GOTO(ygo_nfc_wait_for_card(&ctx));
+    ERR_CHK_GOTO(ygo_nfc_write_card_tag(&ctx, &card));
 
-    nfc_init(&context);
-    if (context == NULL) {
-        ERR("Unable to init libnfc (malloc)");
-        return;
-    }
-
-    pnd = nfc_open(context, NULL);
-
-    if (pnd == NULL) {
-        ERR("%s", "Unable to open NFC device.");
-        nfc_exit(context);
-        return;
-    }
-
-    if (nfc_initiator_init(pnd) < 0) {
-        nfc_perror(pnd, "nfc_initiator_init");
-        nfc_close(pnd);
-        nfc_exit(context);
-        return;
-    }
-
-    printf("NFC reader: %s opened\n", nfc_device_get_name(pnd));
-//    printf("NFC device will poll during %ld ms (%u pollings of %lu ms for %" PRIdPTR " modulations)\n", (unsigned long) uiPollNr * szModulations * uiPeriod * 150, uiPollNr, (unsigned long) uiPeriod * 150, szModulations);
-    if ((res = nfc_initiator_poll_target(pnd, nmModulations, szModulations, uiPollNr, uiPeriod, &nt))  < 0) {
-        nfc_perror(pnd, "nfc_initiator_poll_target");
-        nfc_close(pnd);
-        nfc_exit(context);
-        return;
-    }
-
-    if (res > 0) {
-        print_nfc_target(&nt, 1);
-        printf("Got target.\n");
-
-        {
-            // Read out data struct:
-            mifare_param mp;
-            nfc_initiator_mifare_cmd(pnd, MC_READ, 0x00, &mp);
-            printf("Read system data:\n");
-            hd(mp.mpd.abtData, 16);
-        }
-
-        {
-            // Write out a sample card pack
-            ygo_card_t card = {
-                .id = 40737112,
-                .name = "Dark Magician of Chaos",
-                .type = YGO_CARD_TYPE_EFFECT_MONSTER,
-                .frame = YGO_CARD_FRAME_EFFECT,
-                .subtype = YGO_CARD_STYPE_MONSTER_SPELLCASTER,
-                .attribute = YGO_CARD_ATTR_DARK,
-                .atk = 2800,
-                .def = 2600,
-                .rank = 8,
-                .scale = 0,
-                .link_value = 0,
-                .link_markers = 0,
-            };
-
-            printf("Loaded card: %s\n", card.name);
-
-            uint8_t raw[144] = {0};
-            ygo_card_serialize(raw, &card);
-
-            for (int i = 0; i < 144; i += 16) {
-                mifare_param mp;
-                memcpy(mp.mpd.abtData, raw + i, 16);
-                nfc_initiator_mifare_cmd(pnd, MC_WRITE, (0x04 + (i / 16)), &mp);
-            }
-
-            printf("Card data in theory loaded.");
-        }
-
-            printf("Waiting for card removing...");
-        fflush(stdout);
-        while (0 == nfc_initiator_target_is_present(pnd, NULL)) {}
-        nfc_perror(pnd, "nfc_initiator_target_is_present");
-        printf("done.\n");
-    } else {
-        printf("No target found.\n");
-    }
-
-    nfc_close(pnd);
-    nfc_exit(context);
+cleanup:
+    ygo_nfc_exit(&ctx);
+    return err;
 }
 
 int main(int argc, char *argv[]) {
@@ -163,7 +62,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!strcmp(CMD_READ, command)) {
-        nfc_poll();
+        return nfc_read();
     }
 
     if (!strcmp(CMD_FETCH, command)) {
