@@ -19,12 +19,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Windows Compiler
-        if: matrix.os == 'windows-latest'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-
       - name: Configure the project
         uses: threeal/cmake-action@v1.3.0
         with:
