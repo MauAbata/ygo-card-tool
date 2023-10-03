@@ -24,6 +24,13 @@ set(HTTP_ONLY ON CACHE BOOL "")
 set(ENABLE_IPV6 OFF CACHE BOOL "")
 #set(CURL_LTO ON CACHE BOOL "")
 
+#if(MACOS)
+    # Mac has a constantly running daemon that locks the USB device. The fix is very ugly, so
+    # hopefully we can just comply with the daemon to access it instead. Ugh. Troublesome.
+    set(LIBNFC_DRIVER_ACR122_PCSC ON CACHE BOOL "")
+    set(LIBNFC_DRIVER_ACR122_USB OFF CACHE BOOL "")
+#endif()
+
 add_definitions("-DCURL_STATICLIB -DHTTP_ONLY")
 
 # I have no idea why this is not picked up by default.
@@ -37,6 +44,9 @@ endif()
 set(CMAKE_POLICY_DEFAULT_CMP0115 OLD)
 set(CMAKE_POLICY_DEFAULT_CMP0042 OLD)
 #cmake_policy(SET CMP0115 OLD)
+
+# This if for libnfc
+set(BUILD_EXAMPLES OFF CACHE BOOL "")
 
 add_subdirectory(lib/ygo-c)
 add_subdirectory(lib/cJSON)

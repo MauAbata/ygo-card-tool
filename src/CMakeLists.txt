@@ -20,5 +20,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ../lib/curl/include)
 target_link_libraries(${PROJECT_NAME} PRIVATE libcurl_static)
 
 # Link libnfc
-target_include_directories(${PROJECT_NAME} PRIVATE ../lib/libnfc/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ../lib/libnfc/include ../lib/libnfc/utils)
 target_link_libraries(${PROJECT_NAME} PRIVATE nfc)
+target_sources(${PROJECT_NAME} PRIVATE ../lib/libnfc/utils/mifare.c)
