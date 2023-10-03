@@ -11,6 +11,7 @@
 #include <string.h>
 #include "ygo_errno.h"
 #include "curl/curl.h"
+#include "nfc/nfc.h"
 
 const char *CMD_VIEW = "view";
 const char *CMD_WRITE = "write";
@@ -31,6 +32,29 @@ int main(int argc, char *argv[]) {
         printf("View Card from Binary File\n");
         return YGO_OK;
     }
+
+    nfc_device *pad = NULL;
+    nfc_context *context;
+    printf("libnfc=%s\n", nfc_version());
+    nfc_init(&context);
+    if (context == NULL) {
+        printf("Failed to init libnfc.\n");
+    }
+    pad = nfc_open(context, NULL);
+    if (pad == NULL) {
+        printf("Failed to open NFC device.\n");
+        nfc_exit(context);
+    } else {
+        if (nfc_initiator_init(pad) < 0) {
+            nfc_perror(pad, "nfc_initiator_init");
+            nfc_close(pad);
+            nfc_exit(context);
+        } else {
+            printf("NFC reader open.\n");
+        }
+    }
+
+    nfc_exit(context);
 
     if (!strcmp(CMD_FETCH, command)) {
         fetch();

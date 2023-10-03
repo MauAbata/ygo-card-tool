@@ -26,9 +26,16 @@ set(ENABLE_IPV6 OFF CACHE BOOL "")
 
 add_definitions("-DCURL_STATICLIB -DHTTP_ONLY")
 
+# This is for libnfc, which errors with:
+# Policy CMP0115 is not set: Source file extensions must be explicit.
+set(CMAKE_POLICY_DEFAULT_CMP0115 OLD)
+set(CMAKE_POLICY_DEFAULT_CMP0042 OLD)
+#cmake_policy(SET CMP0115 OLD)
+
 add_subdirectory(lib/ygo-c)
 add_subdirectory(lib/cJSON)
 add_subdirectory(lib/curl)
+add_subdirectory(lib/libnfc)
 add_subdirectory(src)
 
 target_compile_options(cjson PRIVATE -Wno-float-conversion -fno-stack-protector)

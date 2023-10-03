@@ -7,3 +7,6 @@
 [submodule "lib/curl"]
 	path = lib/curl
 	url = https://github.com/curl/curl
+[submodule "lib/libnfc"]
+	path = lib/libnfc
+	url = https://github.com/nfc-tools/libnfc
