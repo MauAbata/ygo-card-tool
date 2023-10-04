@@ -41,14 +41,21 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Run CMake
+      - name: Run CMake - Windows
+        if: matrix.os == 'windows-latest'
         uses: threeal/cmake-action@v1.3.0
         with:
           run-build: true
-          args: |
+          args: >
             -DCMAKE_TOOLCHAIN_FILE:PATH=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
             -DVCPKG_TARGET_TRIPLET=x64-windows-release
             -DVCPKG_MANIFEST_MODE=OFF
+
+      - name: Run CMake - Unix
+        if: matrix.os != 'windows-latest'
+        uses: threeal/cmake-action@v1.3.0
+        with:
+          run-build: true
 
       - name: Test the project
         run: ctest --test-dir build
