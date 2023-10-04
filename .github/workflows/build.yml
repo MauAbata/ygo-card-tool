@@ -24,7 +24,11 @@ jobs:
 
       - name: Install LibUSB - Windows
         if: matrix.os == 'windows-latest'
-        run: pacman -S mingw-w64-x86_64-libusb
+        uses: johnwason/vcpkg-action@v5
+        with:
+          pkgs: libusb
+          triplet: x64-windows-release
+          token: ${{ github.token }}
 
       - name: Checkout the repository
         uses: actions/checkout@v3.5.3
