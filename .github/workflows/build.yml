@@ -23,10 +23,6 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: brew install libusb-compat
 
-      - name: Debug Installed Libs - Mac
-        if: matrix.os == 'macos-latest'
-        run: ls -la /usr/local/lib
-
       - name: Install LibUSB - Linux
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install libusb-dev
@@ -41,18 +37,9 @@ jobs:
         id: vcpkg
         uses: johnwason/vcpkg-action@v5
         with:
-          pkgs: libusb
+          pkgs: libusb-win32
           triplet: x64-windows-release
           token: ${{ github.token }}
-
-      - name: Validate VCPkg - Windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          dir ${{ github.workspace }}
-          dir ${{ github.workspace }}\vcpkg
-          dir ${{ github.workspace }}\vcpkg\scripts
-          dir ${{ github.workspace }}\vcpkg\scripts\buildsystems
-        shell: cmd
 
       - name: Run CMake - Windows
         if: matrix.os == 'windows-latest'
