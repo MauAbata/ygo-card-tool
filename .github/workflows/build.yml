@@ -43,7 +43,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.3
         with:
-          working-directory: src
+          path: src
           submodules: recursive
 
       - name: Validate VCPkg - Windows
