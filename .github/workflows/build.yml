@@ -58,7 +58,6 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: threeal/cmake-action@v1.3.0
         with:
-          working-directory: src
           run-build: true
           args: >
             -DCMAKE_TOOLCHAIN_FILE:PATH=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -69,12 +68,10 @@ jobs:
         if: matrix.os != 'windows-latest'
         uses: threeal/cmake-action@v1.3.0
         with:
-          working-directory: src
           run-build: true
 
       - name: Test the project
         run: ctest --test-dir build
-        working-directory: src
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
