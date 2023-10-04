@@ -48,6 +48,8 @@ set(CMAKE_POLICY_DEFAULT_CMP0042 OLD)
 # This if for libnfc
 set(BUILD_EXAMPLES OFF CACHE BOOL "")
 
+message("=== CMAKE REBUILT ===")
+
 add_subdirectory(lib/ygo-c)
 add_subdirectory(lib/cJSON)
 add_subdirectory(lib/curl)

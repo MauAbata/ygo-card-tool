@@ -14,6 +14,14 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        if: matrix.os == 'windows-latest'
+        with:
+          msystem: mingw32
+          install: >-
+            libusb
+
       - name: Checkout the repository
         uses: actions/checkout@v3.5.3
         with:
@@ -22,7 +30,7 @@ jobs:
       - name: Configure the project
         uses: threeal/cmake-action@v1.3.0
         with:
-          generator: ${{ matrix.os == 'windows-latest' && 'CodeBlocks - MinGW Makefiles' || '' }}
+          generator: ${{ matrix.os == 'windows-latest' && 'MinGW Makefiles' || '' }}
 
       - name: Build the project
         run: cmake --build build --target ygo_card_tool --config Release
