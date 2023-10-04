@@ -41,6 +41,14 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Validate VCPkg - Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          dir ${{ github.workspace }}/vcpkg
+          dir ${{ github.workspace }}/vcpkg/scripts
+          dir ${{ github.workspace }}/vcpkg/scripts/buildsystems
+        shell: cmd
+
       - name: Run CMake - Windows
         if: matrix.os == 'windows-latest'
         uses: threeal/cmake-action@v1.3.0
