@@ -59,6 +59,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           run-build: true
+
           args: >
             -DCMAKE_TOOLCHAIN_FILE:PATH=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
             -DVCPKG_TARGET_TRIPLET=x64-windows-release
@@ -67,6 +68,9 @@ jobs:
       - name: Run CMake - Unix
         if: matrix.os != 'windows-latest'
         uses: threeal/cmake-action@v1.3.0
+        env:
+          LIBRARY_PATH: /usr/local/lib
+          LD_LIBRARY_PATH: /usr/local/lib
         with:
           run-build: true
 
