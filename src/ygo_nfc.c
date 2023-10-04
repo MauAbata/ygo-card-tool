@@ -4,8 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-ygo_errno_t ygo_nfc_init(ygo_nfc_ctx_t *ctx) {
-    if (ctx == NULL) return YGO_ERR_BAD_ARGS;
+ygo_errno_t ygo_nfc_init(ygo_nfc_ctx_t **pctx) {
+    if (pctx == NULL) return YGO_ERR_BAD_ARGS;
+    if (*pctx != NULL) ygo_nfc_exit(*pctx);
+
+    ygo_nfc_ctx_t *ctx = malloc(sizeof(ygo_nfc_ctx_t));
+    *pctx = ctx;
+
+    if (ctx == NULL) {
+        ERR_LOG("Failed to allocate nfc context.");
+        return YGO_ERR_MEMORY_FAIL;
+    }
 
     nfc_init(&ctx->context);
     if (ctx->context == NULL) {

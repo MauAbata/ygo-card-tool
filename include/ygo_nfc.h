@@ -16,7 +16,7 @@ typedef struct {
  * @param ctx
  * @return
  */
-ygo_errno_t ygo_nfc_init(ygo_nfc_ctx_t *ctx);
+ygo_errno_t ygo_nfc_init(ygo_nfc_ctx_t **pctx);
 
 /**
  * Call this to cleanup after yourself.

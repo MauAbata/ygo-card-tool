@@ -24,7 +24,7 @@ void fetch(void);
 
 ygo_errno_t nfc_read(void) {
     ygo_errno_t err = YGO_OK;
-    ygo_nfc_ctx_t ctx;
+    ygo_nfc_ctx_t *ctx;
 
     ygo_card_t card = {
         .id = 40737112,
@@ -42,11 +42,11 @@ ygo_errno_t nfc_read(void) {
     };
 
     ERR_CHK_GOTO(ygo_nfc_init(&ctx));
-    ERR_CHK_GOTO(ygo_nfc_wait_for_card(&ctx));
-    ERR_CHK_GOTO(ygo_nfc_write_card_tag(&ctx, &card));
+    ERR_CHK_GOTO(ygo_nfc_wait_for_card(ctx));
+    ERR_CHK_GOTO(ygo_nfc_write_card_tag(ctx, &card));
 
 cleanup:
-    ygo_nfc_exit(&ctx);
+    ygo_nfc_exit(ctx);
     return err;
 }
 
