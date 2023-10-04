@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Install LibUSB - Mac
         if: matrix.os == 'macos-latest'
-        run: sudo brew install libusb-compat
+        run: brew install libusb-compat
 
       - name: Install LibUSB - Linux
         if: matrix.os == 'ubuntu-latest'
@@ -27,7 +27,7 @@ jobs:
         id: vcpkg
         uses: johnwason/vcpkg-action@v5
         with:
-          pkgs: libusb
+          pkgs: libusb mingw-w64
           triplet: x64-windows-release
           token: ${{ github.token }}
 
