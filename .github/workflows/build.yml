@@ -14,6 +14,11 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3.5.3
+        with:
+          submodules: recursive
+
       - name: Install LibUSB - Mac
         if: matrix.os == 'macos-latest'
         run: brew install libusb-compat
@@ -39,12 +44,6 @@ jobs:
           pkgs: libusb
           triplet: x64-windows-release
           token: ${{ github.token }}
-
-      - name: Checkout the repository
-        uses: actions/checkout@v3.5.3
-        with:
-          path: src
-          submodules: recursive
 
       - name: Validate VCPkg - Windows
         if: matrix.os == 'windows-latest'
