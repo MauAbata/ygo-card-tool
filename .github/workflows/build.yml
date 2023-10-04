@@ -18,9 +18,9 @@ jobs:
         uses: msys2/setup-msys2@v2
         if: matrix.os == 'windows-latest'
         with:
-          msystem: mingw32
+          msystem: mingw64
           install: >-
-            libusb
+            mingw-w64-x86_64-libusb
 
       - name: Checkout the repository
         uses: actions/checkout@v3.5.3
