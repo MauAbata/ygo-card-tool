@@ -33,12 +33,6 @@ endif()
 
 add_definitions("-DCURL_STATICLIB -DHTTP_ONLY")
 
-# I have no idea why this is not picked up by default.
-if(WIN32)
-else()
-    add_compile_options("-L/usr/local/lib")
-endif()
-
 # This is for libnfc, which errors with:
 # Policy CMP0115 is not set: Source file extensions must be explicit.
 set(CMAKE_POLICY_DEFAULT_CMP0115 OLD)
@@ -47,6 +41,7 @@ set(CMAKE_POLICY_DEFAULT_CMP0042 OLD)
 
 # This if for libnfc
 set(BUILD_EXAMPLES OFF CACHE BOOL "")
+set(BUILD_UTILS OFF CACHE BOOL "")
 
 message("=== CMAKE REBUILT ===")
 
