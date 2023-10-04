@@ -24,12 +24,12 @@ set(HTTP_ONLY ON CACHE BOOL "")
 set(ENABLE_IPV6 OFF CACHE BOOL "")
 #set(CURL_LTO ON CACHE BOOL "")
 
-#if(MACOS)
+if(APPLE)
     # Mac has a constantly running daemon that locks the USB device. The fix is very ugly, so
     # hopefully we can just comply with the daemon to access it instead. Ugh. Troublesome.
     set(LIBNFC_DRIVER_ACR122_PCSC ON CACHE BOOL "")
     set(LIBNFC_DRIVER_ACR122_USB OFF CACHE BOOL "")
-#endif()
+endif()
 
 add_definitions("-DCURL_STATICLIB -DHTTP_ONLY")
 
