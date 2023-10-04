@@ -41,10 +41,17 @@ jobs:
           triplet: x64-windows-release
           token: ${{ github.token }}
 
+      - name: Set up MinGW
+        if: matrix.os == 'windows-latest'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+
       - name: Run CMake - Windows
         if: matrix.os == 'windows-latest'
         uses: threeal/cmake-action@v1.3.0
         with:
+          generator: MinGW Makefiles
           run-build: true
 
           args: >
