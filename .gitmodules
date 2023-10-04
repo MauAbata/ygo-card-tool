@@ -9,4 +9,4 @@
 	url = https://github.com/curl/curl
 [submodule "lib/libnfc"]
 	path = lib/libnfc
-	url = https://github.com/nfc-tools/libnfc
+	url = https://github.com/MauAbata/libnfc
