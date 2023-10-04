@@ -45,7 +45,10 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           run-build: true
-          args: ${{ steps.vcpkg.outputs.vcpkg-cmake-config }}
+          args:
+            - -DCMAKE_TOOLCHAIN_FILE:PATH=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+            - -DVCPKG_TARGET_TRIPLET=x64-windows-release
+            - -DVCPKG_MANIFEST_MODE=OFF
 
       - name: Test the project
         run: ctest --test-dir build
