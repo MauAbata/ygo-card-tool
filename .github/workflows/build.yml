@@ -22,12 +22,16 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install libusb-dev
 
+      - name: Remove Strawberry - Windows
+        if: matrix.os == 'windows-latest'
+        run: rmdir /s /q C:\Strawberry
+
       - name: Install LibUSB - Windows
         if: matrix.os == 'windows-latest'
         id: vcpkg
         uses: johnwason/vcpkg-action@v5
         with:
-          pkgs: libusb mingw-w64
+          pkgs: libusb
           triplet: x64-windows-release
           token: ${{ github.token }}
 
@@ -40,9 +44,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           run-build: true
-          run-test: true
           args: ${{ steps.vcpkg.outputs.vcpkg-cmake-config }}
-          generator: ${{ matrix.os == 'windows-latest' && 'MinGW Makefiles' || '' }}
 
       - name: Test the project
         run: ctest --test-dir build
