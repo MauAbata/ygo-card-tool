@@ -48,6 +48,11 @@ message("=== CMAKE REBUILT ===")
 add_subdirectory(lib/ygo-c)
 add_subdirectory(lib/cJSON)
 add_subdirectory(lib/curl)
+
+if(WIN32)
+    add_subdirectory(lib/libusb-win32)
+endif()
+
 add_subdirectory(lib/libnfc)
 add_subdirectory(src)
 
