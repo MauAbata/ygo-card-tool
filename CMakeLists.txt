@@ -50,8 +50,12 @@ add_subdirectory(lib/cJSON)
 add_subdirectory(lib/curl)
 
 if(WIN32)
-    set(LIBUSB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/include)
-    set(LIBUSB_LIBRARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/lib/gcc)
+    # We're going to manually bundle in this nonsense...
+    FIND_PATH(LIBUSB_INCLUDE_DIRS lusb0_usb.h "${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/include" NO_SYSTEM_ENVIRONMENT_PATH)
+    FIND_LIBRARY(LIBUSB_LIBRARIES NAMES libusb PATHS "${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/lib/gcc" REQUIRED)
+#    SET(LIBUSB_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/bin/x86/")
+#    STRING(REGEX REPLACE "\\\\" "/" LIBUSB_LIBRARY_DIR ${LIBUSB_LIBRARY_DIR})
+    SET(LIBUSB_FOUND ON)
 endif()
 
 add_subdirectory(lib/libnfc)
