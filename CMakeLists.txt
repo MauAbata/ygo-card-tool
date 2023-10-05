@@ -50,7 +50,8 @@ add_subdirectory(lib/cJSON)
 add_subdirectory(lib/curl)
 
 if(WIN32)
-    add_subdirectory(lib/libusb-win32)
+    set(LIBUSB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/include)
+    set(LIBUSB_LIBRARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/lib/gcc)
 endif()
 
 add_subdirectory(lib/libnfc)
