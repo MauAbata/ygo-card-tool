@@ -12,5 +12,5 @@ typedef enum {
 
 #define ERR_CHK(expr) { ygo_errno_t _err = expr; if (_err != YGO_OK) return _err; }
 #define ERR_CHK_GOTO(expr) { ygo_errno_t _err = expr; if (_err != YGO_OK) goto cleanup; }
-#define ERR_LOG(str...) { fprintf(stderr, str); fprintf(stderr, "\n"); }
+#define ERR_LOG(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 #endif

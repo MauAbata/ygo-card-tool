@@ -6,7 +6,7 @@
 #include "hd.h"
 #include "ygo_card.h"
 #include <cJSON.h>
-#include <getopt.h>
+//#include <getopt.h>
 #include <stdio.h>
 #include <string.h>
 #include "ygo_errno.h"
