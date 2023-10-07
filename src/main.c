@@ -7,16 +7,35 @@
 #include "ygo_card.h"
 #include <cJSON.h>
 //#include <getopt.h>
+#include "curl/curl.h"
+#include "ygo_errno.h"
+#include "ygo_nfc.h"
 #include <stdio.h>
 #include <string.h>
-#include "ygo_errno.h"
-#include "curl/curl.h"
-#include "ygo_nfc.h"
+#include <ygo_database.h>
+#include <cargs.h>
+#include "strings.h"
 
 const char *CMD_VIEW = "view";
+ygo_errno_t cmd_view(int argc, char *argv[]);
+
 const char *CMD_WRITE = "write";
+ygo_errno_t cmd_write(int argc, char *argv[]);
+
 const char *CMD_READ = "read";
+ygo_errno_t cmd_read(int argc, char *argv[]);
+
 const char *CMD_FETCH = "fetch";
+ygo_errno_t cmd_fetch(int argc, char *argv[]);
+
+static struct cag_option options[] = {
+    {
+        .identifier = 'h',
+        .access_letters = "h",
+        .access_name = "help",
+        .description = HELP_ARG_HELP
+    }
+};
 
 ygo_errno_t usage(const char* cmd);
 
@@ -65,12 +84,16 @@ cleanup:
 }
 
 int main(int argc, char *argv[]) {
-    char *command = NULL;
-    if (argc > 1) command = argv[1];
-    printf("Executing ...\n");
-    fflush(stdout);
+    if (argc < 2) return usage("");
+    char *command = argv[1];
 
-    if (command == NULL) return usage(command);
+    // Offset args until the command name becomes argv[0]
+    int cmd_argc = argc - 1;
+    char** cmd_argv = argv + 1;
+
+    if (!strcmp(CMD_WRITE, command)) {
+        return cmd_write(cmd_argc, cmd_argv);
+    }
 
     if (!strcmp(CMD_VIEW, command)) {
         printf("View Card from Binary File\n");
@@ -82,28 +105,10 @@ int main(int argc, char *argv[]) {
     }
 
     if (!strcmp(CMD_FETCH, command)) {
-        fetch();
         return YGO_OK;
     }
 
     return usage(command);
-}
-
-void fetch(void) {
-    CURL *curl;
-    CURLcode res;
-    curl = curl_easy_init();
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, "https://db.ygoprodeck.com/api/v7/cardinfo.php?id=65330383");
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-        res = curl_easy_perform(curl);
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        }
-        printf("HTTP res=%d\n", res);
-        curl_easy_cleanup(curl);
-    }
 }
 
 //void demo(void) {
@@ -159,41 +164,24 @@ void fetch(void) {
 //    return YGO_OK;
 //}
 
-#ifdef LANG_JP
-#define HELP_SPECIFY_CMD "コマンドを指定する必要があります。"
-#define HELP_UNKNOWN_CMD "不明なコマンド"
-#define HELP_USAGE "使用法: ygo <コマンド> [オプション...]"
-#define HELP_COMMANDS "コマンド"
-#define HELP_CMD_VIEW "バイナリパックからカードデータを表示する"
-#define HELP_CMD_WRITE "バイナリパックをカードタグに送信"
-#define HELP_CMD_READ "カードタグからバイナリパックを受け取る"
-#define HELP_CMD_ENCODE "JSON カードデータファイルをバイナリパックにエンコードする"
-#define HELP_CMD_DECODE "JSON カードデータファイルからバイナリパックをデコードする"
-#else
-#define HELP_SPECIFY_CMD "You must specify a command."
-#define HELP_UNKNOWN_CMD "Unknown command"
-#define HELP_USAGE "Usage: ygo <command> [options...]"
-#define HELP_COMMANDS "Commands"
-#define HELP_CMD_VIEW "View the card data encoded in a binary pack"
-#define HELP_CMD_WRITE "Write a binary pack to a card tag"
-#define HELP_CMD_READ "Read a binary pack from a card tag"
-#define HELP_CMD_ENCODE "Encode a JSON card data file to a binary pack"
-#define HELP_CMD_DECODE "Decode a binary pack into a JSON card data file"
-#endif
 
 ygo_errno_t usage(const char *cmd) {
-    if (cmd == NULL) printf(HELP_SPECIFY_CMD "\n");
-    else printf(HELP_UNKNOWN_CMD ": %s\n", cmd);
+    if (cmd != NULL) {
+        if (cmd[0] == '\0')
+            printf(HELP_SPECIFY_CMD "\n");
+        else
+            printf(HELP_UNKNOWN_CMD ": %s\n", cmd);
+    }
 
     printf(
-        HELP_USAGE "\n"
+        HELP_USAGE("<command>") "\n"
         "\n"
         HELP_COMMANDS ":\n"
-        "    view     - " HELP_CMD_VIEW "\n"
-        "    write    - " HELP_CMD_WRITE "\n"
-        "    read     - " HELP_CMD_READ "\n"
-        "    encode   - " HELP_CMD_ENCODE "\n"
-        "    decode   - " HELP_CMD_DECODE "\n"
+        "  view                 " HELP_CMD_VIEW "\n"
+        "  write                " HELP_CMD_WRITE "\n"
+        "  read                 " HELP_CMD_READ "\n"
+        "  encode               " HELP_CMD_ENCODE "\n"
+        "  decode               " HELP_CMD_DECODE "\n"
     );
 
     return YGO_ERR_BAD_ARGS;

@@ -62,6 +62,7 @@ if(WIN32)
 endif()
 
 add_subdirectory(lib/libnfc)
+add_subdirectory(lib/cargs)
 add_subdirectory(src)
 
 #target_compile_options(cjson PRIVATE -Wno-float-conversion -fno-stack-protector)

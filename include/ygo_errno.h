@@ -8,6 +8,8 @@ typedef enum {
     YGO_ERR_MEMORY_FAIL,
     YGO_ERR_DEVICE_FAIL,
     YGO_ERR_TAG_NOT_FOUND,
+    YGO_ERR_NO_NETWORK,
+    YGO_ERR_BAD_FETCH,
 } ygo_errno_t;
 
 #define ERR_CHK(expr) { ygo_errno_t _err = expr; if (_err != YGO_OK) return _err; }
