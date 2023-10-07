@@ -1,6 +1,7 @@
 #include "ygo_nfc.h"
-#include "mifare.h"
+#include "../lib/libusb-win32/include/lusb0_usb.h"
 #include "hd.h"
+#include "mifare.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -9,12 +10,32 @@ ygo_errno_t ygo_nfc_init(ygo_nfc_ctx_t **pctx) {
     if (*pctx != NULL) ygo_nfc_exit(*pctx);
 
     ygo_nfc_ctx_t *ctx = malloc(sizeof(ygo_nfc_ctx_t));
+
+    // struct member initialization was moved to below, please enjoy the embarrassment that I am
+    // leaving in this code
+
     *pctx = ctx;
 
+    // Silly ideas are written in blood. I actually just wanted to continue working with ctx here,
+    // but CLion said `if (ctx == NULL)` is always going to be fa---ls...e...
     if (ctx == NULL) {
         ERR_LOG("Failed to allocate nfc context.");
         return YGO_ERR_MEMORY_FAIL;
     }
+
+    // Let's learn a lesson here. Remember how everybody told you to initialize your variables and
+    // do not trust them to always be NULL or similar? So, I got lazy with that because it seemed
+    // in GCC that everything was, generally speaking, just going well. It worked. An uninitialized
+    // pointer just always seemed to be NULL! Well... that's why we have calloc() and also...
+    // I guess listen to your textbook, idk.
+    //
+    // Update: The check above was `if (*pctx == NULL)` to fix a code inspection, but what actually
+    // should have been done is me paying attention that I initialized these members *BEFORE*
+    // the test to see if the malloc succeeded. I've been doing this for years I should not make
+    // these simple mistakes.
+    ctx->device = NULL;
+    ctx->context = NULL;
+    ctx->target = NULL;
 
     nfc_init(&ctx->context);
     if (ctx->context == NULL) {
@@ -28,6 +49,8 @@ ygo_errno_t ygo_nfc_init(ygo_nfc_ctx_t **pctx) {
         ygo_nfc_exit(ctx);
         return YGO_ERR_DEVICE_FAIL;
     }
+
+    nfc_set_device_led(ctx->device, LED_READY);
 
     if (nfc_initiator_init(ctx->device) < 0) {
         nfc_perror(ctx->device, "nfc_initiator_init");
@@ -58,6 +81,7 @@ void ygo_nfc_exit(ygo_nfc_ctx_t *ctx) {
 
 ygo_errno_t ygo_nfc_wait_for_card(ygo_nfc_ctx_t *ctx) {
     if (ctx->context == NULL || ctx->device == NULL) return YGO_ERR_DEVICE_FAIL;
+    nfc_set_device_led(ctx->device, LED_READY);
 
     const uint8_t nfc_poll_count = 20;
     const uint8_t nfc_poll_period = 2;
@@ -89,9 +113,11 @@ ygo_errno_t ygo_nfc_wait_for_card(ygo_nfc_ctx_t *ctx) {
             free(ctx->target);
             ctx->target = NULL;
         }
+        nfc_set_device_led(ctx->device, LED_ERROR);
         return YGO_ERR_TAG_NOT_FOUND;
     }
 
+    nfc_set_device_led(ctx->device, LED_READY);
     return YGO_OK;
 }
 
@@ -100,6 +126,7 @@ ygo_errno_t ygo_nfc_wait_for_card_removed(ygo_nfc_ctx_t *ctx) {
     // TODO - This might be locking up the device. Also, just don't call it. There's no break. Bad.
     while (0 == nfc_initiator_target_is_present(ctx->device, NULL)) {}
     nfc_perror(ctx->device, "nfc_initiator_target_is_present");
+    nfc_set_device_led(ctx->device, LED_ERROR);
     return YGO_OK;
 }
 

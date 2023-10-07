@@ -24,7 +24,7 @@ void fetch(void);
 
 ygo_errno_t nfc_read(void) {
     ygo_errno_t err = YGO_OK;
-    ygo_nfc_ctx_t *ctx;
+    ygo_nfc_ctx_t *ctx = NULL;
 
     ygo_card_t card = {
         .id = 40737112,
@@ -41,18 +41,34 @@ ygo_errno_t nfc_read(void) {
         .link_markers = 0,
     };
 
+    printf("Initializing NFC device...\n");
+    fflush(stdout);
     ERR_CHK_GOTO(ygo_nfc_init(&ctx));
+
+    printf("Waiting for card read...\n");
+    fflush(stdout);
     ERR_CHK_GOTO(ygo_nfc_wait_for_card(ctx));
+
+    printf("Writing out card tag...\n");
+    fflush(stdout);
     ERR_CHK_GOTO(ygo_nfc_write_card_tag(ctx, &card));
+
+    printf("Complete!\n");
+    fflush(stdout);
+    ERR_CHK_GOTO(ygo_nfc_wait_for_card_removed(ctx));
 
 cleanup:
     ygo_nfc_exit(ctx);
+    if (err != 0)
+        printf("ERRNO=%d\n", err);
     return err;
 }
 
 int main(int argc, char *argv[]) {
     char *command = NULL;
     if (argc > 1) command = argv[1];
+    printf("Executing ...\n");
+    fflush(stdout);
 
     if (command == NULL) return usage(command);
 
