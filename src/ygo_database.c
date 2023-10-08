@@ -104,14 +104,24 @@ ygo_errno_t ygo_db_get_card(uint32_t card_id, ygo_card_t *card) {
     return err;
 }
 
+#define get(key) data = cJSON_GetObjectItem(root, key); if (data != NULL)
+
 ygo_errno_t ygo_db_json_to_card(cJSON *root, ygo_card_t *card) {
     memset(card, 0, sizeof(ygo_card_t));
+    cJSON *data = NULL;
 
-    cJSON *id = cJSON_GetObjectItem(root, "id");
-    if (id != NULL) card->id = id->valueint;
-
-    cJSON *name = cJSON_GetObjectItem(root, "name");
-    if (name != NULL) strcpy_s(card->name, YGO_CARD_NAME_MAX_LEN, name->valuestring);
+    get("id") card->id = data->valueint;
+    get("name") strcpy_s(card->name, YGO_CARD_NAME_MAX_LEN, data->valuestring);
+    get("type") card->type = ygo_card_type_from_str(data->valuestring);
+    get("frame") card->frame = ygo_card_frame_from_str(data->valuestring);
+    get("race") card->subtype = ygo_card_subtype_from_str(data->valuestring);
+    get("attribute") card->attribute = ygo_card_attribute_from_str(data->valuestring);
+    get("atk") card->atk = data->valueint;
+    get("def") card->def = data->valueint;
+    get("level") card->rank = data->valueint;
+    get("scale") card->scale = data->valueint;
+    get("linkval") card->link_value = data->valueint;
+//    get("linkmarkers")
 
     return YGO_OK;
 }

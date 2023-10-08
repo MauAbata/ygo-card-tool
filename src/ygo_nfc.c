@@ -1,5 +1,4 @@
 #include "ygo_nfc.h"
-#include "../lib/libusb-win32/include/lusb0_usb.h"
 #include "hd.h"
 #include "mifare.h"
 #include <stdlib.h>
@@ -152,8 +151,8 @@ static ygo_errno_t _read_system_data(ygo_nfc_ctx_t *ctx, nfc_tag_sys_data_t data
     nfc_initiator_mifare_cmd(ctx->device, MC_READ, 0x00, &mp);
 
     // This can later be moved to a debug macro?
-    printf("Read system data:\n");
-    hd(mp.mpd.abtData, 16);
+//    printf("Read system data:\n");
+//    hd(mp.mpd.abtData, 16);
     memcpy(data, mp.mpd.abtData, 16);
 
     return YGO_OK;
@@ -163,13 +162,12 @@ ygo_errno_t ygo_nfc_write_card_tag(ygo_nfc_ctx_t *ctx, const ygo_card_t *card) {
     nfc_tag_sys_data_t sys;
     ygo_errno_t err = YGO_OK;
 
+    // TODO - Validate tag type and storage capacity before blindly writing out data.
     ERR_CHK(_read_system_data(ctx, sys));
-    printf("Writing out card: %s\n", card->name);
 
     uint8_t raw[144] = {0};
     ygo_card_serialize(raw, card);
 
-    printf("Dumping card data:\n");
     hd(raw, 144);
 
     for (int i = 0; i < 144; i += 4) {
@@ -178,7 +176,6 @@ ygo_errno_t ygo_nfc_write_card_tag(ygo_nfc_ctx_t *ctx, const ygo_card_t *card) {
         nfc_initiator_mifare_cmd(ctx->device, MC_WRITE, (0x04 + (i / 4)), &mp);
     }
 
-    printf("Card data in theory loaded.\n");
     return YGO_OK;
 }
 

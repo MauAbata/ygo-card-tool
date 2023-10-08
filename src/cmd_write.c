@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <ygo_errno.h>
+#include "ygo_nfc.h"
 
 static struct cag_option options[] = {
     {
@@ -138,8 +139,12 @@ static ygo_errno_t usage(const char *invalid) {
 }
 
 ygo_errno_t run(struct cmd_options *opts) {
-    ygo_card_t card;
-    card.id = 0x00000000;
+    ygo_nfc_ctx_t *ctx = NULL;
+    ygo_errno_t err = YGO_OK;
+
+    ygo_card_t card = {
+        .id = 0x00000000
+    };
 
     if (opts->fetch) {
         if (opts->json_file != NULL || opts->bin_file != NULL) {
@@ -165,22 +170,31 @@ ygo_errno_t run(struct cmd_options *opts) {
         return YGO_ERR_BAD_ARGS;
     }
 
-    printf("Fetched card: %s\n", card.name);
+    printf("\n=== Card Data ===");
+    ygo_card_print(&card);
+    printf("\n");
 
-    size_t data_len = ygo_card_serialize(NULL, &card);
-    uint8_t *buffer = (uint8_t*) malloc(data_len);
+    printf("Initializing NFC device...\n");
+    fflush(stdout);
+    ERR_CHK_GOTO(ygo_nfc_init(&ctx));
 
-    if (buffer == NULL) {
-        printf("Failed to allocate write buffer.\n");
-        return YGO_ERR_MEMORY_FAIL;
+    printf("Waiting for card read...\n");
+    fflush(stdout);
+    ERR_CHK_GOTO(ygo_nfc_wait_for_card(ctx));
+
+    printf("Writing out card tag...\n");
+    fflush(stdout);
+    ERR_CHK_GOTO(ygo_nfc_write_card_tag(ctx, &card));
+
+    printf("Card tag written successfully.\n");
+
+cleanup:
+    ygo_nfc_exit(ctx);
+
+    if (err != 0) {
+        fprintf(stderr, "ERRNO=%d\n", err);
+        fflush(stderr);
     }
 
-    ygo_card_serialize(buffer, &card);
-
-    printf("Card buffer dump:\n");
-    hd(buffer, data_len);
-    free(buffer);
-
-    // and now write, later.
-    return YGO_OK;
+    return err;
 }

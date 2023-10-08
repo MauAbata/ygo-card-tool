@@ -12,7 +12,8 @@ typedef struct {
 } ygo_nfc_ctx_t;
 
 /**
- * Initializes an NFC connection for reading card tags.
+ * Initializes an NFC connection for reading card tags. Do not forget to initialize the pointer
+ * to NULL or bad things happen.
  * @param ctx
  * @return
  */
