@@ -3,11 +3,11 @@
  * handlers. This is an entrypoint, not an implementation. Keep it simple.
  */
 
+#include "../lib/ygo-c/src/internals.h"
+#include "strings.h"
 #include "ygo_errno.h"
 #include <stdio.h>
 #include <string.h>
-#include "strings.h"
-#include "internals.h"
 
 enum debug_level DEBUG_LEVEL = DEBUG_ON;
 
