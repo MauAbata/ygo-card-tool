@@ -13,7 +13,7 @@ struct curl_buffer_state {
 };
 
 // TODO: There's some serious heap corrpution going on here.
-static size_t _write_curl_buffer(void *buffer, size_t size, size_t nmemb, void *userp) {
+static size_t write_curl_buffer(void *buffer, size_t size, size_t nmemb, void *userp) {
     struct curl_buffer_state *state = (struct curl_buffer_state*) userp;
 
     // Allocate or reallocate a memory buffer to hold incoming data:
@@ -54,7 +54,7 @@ ygo_errno_t ygo_db_get_card_json(uint32_t card_id, cJSON **root) {
         printf("Fetching %s\n", url);
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _write_curl_buffer);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_curl_buffer);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) &state);
 
         res = curl_easy_perform(curl);
@@ -166,13 +166,19 @@ void _assign_link_markers(ygo_card_t *card, cJSON *root) {
     cJSON_ArrayForEach(node, root) {
         LOGD("Checking link marker token: %s\n", node->valuestring);
         ygo_card_link_markers_t lm = ygo_card_link_markers_from_str(node->valuestring);
-        if (lm != -1) {
+        if (lm != 0x00) {
             card->link_markers = (unsigned)card->link_markers | (unsigned)lm;
         }
     }
 }
 
 #define get(key) data = cJSON_GetObjectItem(root, key); if (data != NULL)
+
+#ifndef strlcpy
+// This should be evaluated to see if it's a suitable replacement. I was in BSD code for so long
+// I forgot what was actually POSIX standard, and it seems strlcpy or strcpy_s are not available!
+#define strlcpy(dest, src, len) { strncpy(dest, src, len); dest[len] = '\0'; }
+#endif
 
 ygo_errno_t ygo_db_json_to_card(cJSON *root, ygo_card_t *card) {
     memset(card, 0, sizeof(ygo_card_t));
