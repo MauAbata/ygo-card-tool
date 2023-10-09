@@ -50,15 +50,27 @@ add_subdirectory(lib/cJSON)
 add_subdirectory(lib/curl)
 
 if(WIN32)
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
     # We're going to manually bundle in this nonsense...
     FIND_PATH(LIBUSB_INCLUDE_DIRS lusb0_usb.h "${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/include" NO_SYSTEM_ENVIRONMENT_PATH)
-    FIND_LIBRARY(LIBUSB_LIBRARIES NAMES libusb PATHS "${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/lib/gcc" REQUIRED)
+    FIND_LIBRARY(LIBUSB_LIBRARIES NAMES libusb PATHS "${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/lib/msvc" REQUIRED)
 #    SET(LIBUSB_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/libusb-win32/bin/x86/")
 #    STRING(REGEX REPLACE "\\\\" "/" LIBUSB_LIBRARY_DIR ${LIBUSB_LIBRARY_DIR})
     SET(LIBUSB_FOUND ON)
 endif()
 
 add_subdirectory(lib/libnfc)
+add_subdirectory(lib/cargs)
 add_subdirectory(src)
 
-target_compile_options(cjson PRIVATE -Wno-float-conversion -fno-stack-protector)
+#target_compile_options(cjson PRIVATE -Wno-float-conversion -fno-stack-protector)
+
+if(WIN32)
+#    target_compile_options(nfc PRIVATE -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Wno-format)
+    # This is a strange name for it, but setting _WINDLL=1 for whatever reason disables the declspec for libnfc's header...
+    target_compile_definitions(nfc PRIVATE -DBUILD_STATIC_LIBS=1)
+    target_compile_definitions(ygo_card_tool PRIVATE -DBUILD_STATIC_LIBS=1)
+    # Now we just gotta build libusb-64 bit
+endif()

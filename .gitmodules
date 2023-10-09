@@ -10,3 +10,6 @@
 [submodule "lib/libnfc"]
 	path = lib/libnfc
 	url = https://github.com/MauAbata/libnfc
+[submodule "lib/cargs"]
+	path = lib/cargs
+	url = https://github.com/likle/cargs
