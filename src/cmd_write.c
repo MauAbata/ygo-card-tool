@@ -1,11 +1,11 @@
 ﻿#include "cargs.h"
 #include "strings.h"
 #include "ygo_database.h"
+#include "ygo_nfc.h"
 #include <hd.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <ygo_errno.h>
-#include "ygo_nfc.h"
 
 static struct cag_option options[] = {
     {
@@ -49,12 +49,28 @@ static struct cag_option options[] = {
         .access_name = "library",
         .value_name = "DIR",
         .description = "Specify a local library directory path to search for card data."
+    },
+    {
+        .identifier = 'n',
+        .access_letters = "n",
+        .access_name = "dry-run",
+        .value_name = NULL,
+        .description = "Fetch and display data, but do not write to card."
+    },
+    {
+        .identifier = 'd',
+        .access_letters = "d",
+        .access_name = "dump",
+        .value_name = NULL,
+        .description = "Show a hex dump of the data to be written."
     }
 };
 
 struct cmd_options {
     uint32_t id;
     int fetch;
+    int dry_run;
+    int dump;
     const char* bin_file;
     const char* json_file;
     const char* library_dir;
@@ -70,6 +86,8 @@ ygo_errno_t cmd_write(int argc, char *argv[]) {
     struct cmd_options opts = {
         .id = 0,
         .fetch = 0,
+        .dry_run = 0,
+        .dump = 0,
         .bin_file = NULL,
         .json_file = NULL,
         .library_dir = NULL,
@@ -93,6 +111,8 @@ ygo_errno_t cmd_write(int argc, char *argv[]) {
         case 'b': opts.bin_file = cag_option_get_value(&ctx); break;
         case 'j': opts.json_file = cag_option_get_value(&ctx); break;
         case 'l': opts.library_dir = cag_option_get_value(&ctx); break;
+        case 'n': opts.dry_run = 1; break;
+        case 'd': opts.dump = 1; break;
         }
     }
 
@@ -170,9 +190,19 @@ ygo_errno_t run(struct cmd_options *opts) {
         return YGO_ERR_BAD_ARGS;
     }
 
-    printf("\n=== Card Data ===");
+    printf("\n=== Card Data ===\n");
     ygo_card_print(&card);
-    printf("\n");
+    printf("=== End Card Data ===\n");
+
+    if (opts->dump) {
+        uint8_t raw[144] = {0};
+        ygo_card_serialize(raw, &card);
+        hd(raw, 144);
+    }
+
+    if (opts->dry_run) {
+        return YGO_OK;
+    }
 
     printf("Initializing NFC device...\n");
     fflush(stdout);

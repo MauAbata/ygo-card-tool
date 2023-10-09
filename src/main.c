@@ -3,11 +3,13 @@
  * handlers. This is an entrypoint, not an implementation. Keep it simple.
  */
 
-#include "ygo_card.h"
 #include "ygo_errno.h"
 #include <stdio.h>
 #include <string.h>
 #include "strings.h"
+#include "internals.h"
+
+enum debug_level DEBUG_LEVEL = DEBUG_ON;
 
 const char *CMD_VIEW = "view";
 ygo_errno_t cmd_view(int argc, char *argv[]);
