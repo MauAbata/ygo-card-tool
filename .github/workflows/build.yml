@@ -45,7 +45,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: threeal/cmake-action@v1.3.0
         with:
-          generator: MSVC
+          generator: Visual Studio 17 2022
           run-build: true
 
           args: >
