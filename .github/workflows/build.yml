@@ -45,7 +45,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: threeal/cmake-action@v1.3.0
         with:
-          generator: MinGW Makefiles
+          generator: MSVC
           run-build: true
 
           args: >
